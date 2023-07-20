@@ -1,0 +1,39 @@
+version: "3.8"
+services:
+  api:
+    container_name: tivy_backend
+    restart: always
+    build: ./server
+    ports:
+      - ${PORT}:${PORT}
+    depends_on:
+      - db
+    volumes:
+      - .:/usr/src/app
+
+  db:
+    container_name: tivy_postgres
+    image: postgres
+    ports:
+      - "5432:${PGPORT}"
+    volumes:
+      - data:/data/db
+    environment:
+      - POSTGRES_PASSWORD=${PGPASSWORD}
+      - POSTGRES_DB=${PGDATABASE}
+
+  client:
+    build: ./client
+    container_name: tivy_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    links:
+      - api
+    volumes:
+      - ./client:/app
+      - .:/app/node_modules
+
+volumes:
+  data: {}
